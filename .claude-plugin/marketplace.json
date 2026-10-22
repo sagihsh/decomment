@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "decomment",
+  "description": "A comment is an apology for code that failed to speak.",
+  "owner": {
+    "name": "Sagi H",
+    "url": "https://github.com/sagihsh"
+  },
+  "plugins": [
+    {
+      "name": "decomment",
+      "description": "Deletes the comments AI writes by default. Every surviving comment has to name a source outside the file.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

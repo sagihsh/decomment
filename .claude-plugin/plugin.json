@@ -1,0 +1,11 @@
+{
+  "name": "decomment",
+  "version": "1.0.0",
+  "description": "Deletes the comments AI writes by default. Every surviving comment has to name a source outside the file.",
+  "author": {
+    "name": "Sagi H",
+    "url": "https://github.com/sagihsh"
+  },
+  "repository": "https://github.com/sagihsh/decomment",
+  "license": "MIT"
+}
