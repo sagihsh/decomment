@@ -2,7 +2,7 @@
 
 **A comment is an apology for code that failed to speak.**
 
-decomment is a Claude Code skill and hook that stops the agent from shipping the comments it writes by default: step narration, section banners, docblocks that echo the types, and notes defending choices nobody asked about. Deletion is the default. A comment survives only if it passes three questions:
+decomment is a Claude Code skill and hook that gets your agent writing clean code. Every comment the agent writes gets questioned: is it necessary, or is it narration, like step-by-step commentary, section banners, docblocks that echo the types, and notes defending choices nobody asked about? Could a better variable name, a better function name, or an extracted function make it unnecessary? A comment survives only if it passes three questions:
 
 1. **Could the code have carried this?** If a rename, an extracted function, or a named constant can say it, make that change and delete the comment.
 2. **Would a competent engineer miss anything without it?** If not, it was noise.
