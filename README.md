@@ -2,7 +2,11 @@
 
 **A comment is an apology for code that failed to speak.**
 
-decomment is a Claude Code skill and hook that gets your agent writing clean code. Every comment the agent writes gets questioned: is it necessary, or is it narration, like step-by-step commentary, section banners, docblocks that echo the types, and notes defending choices nobody asked about? Could a better variable name, a better function name, or an extracted function make it unnecessary? A comment survives only if it passes three questions:
+Telling your agent to stop over-commenting doesn't work. It agrees, apologizes, and writes `// Return the result`.
+
+A rule in CLAUDE.md gets read once and then loses to habit. decomment is a Claude Code skill and hook that asks the question at the moment a comment is written, every time. Step-by-step narration, section banners, docblocks that echo the types and notes defending choices nobody asked about don't make it through. When a better name or an extracted function can say the same thing, the agent makes that change instead. What you get back is clean code that explains itself, plus the few comments that actually tell you something.
+
+A comment survives only if it passes three questions:
 
 1. **Could the code have carried this?** If a rename, an extracted function, or a named constant can say it, make that change and delete the comment.
 2. **Would a competent engineer miss anything without it?** If not, it was noise.
@@ -11,6 +15,8 @@ decomment is a Claude Code skill and hook that gets your agent writing clean cod
 "Shortened" doesn't count as a verdict. A rewritten comment is still a kept comment and has to pass the same three questions.
 
 ## Before and after
+
+A React hook, the way an agent usually writes it:
 
 ```ts
 // Custom hook to fetch and filter tickets
@@ -32,6 +38,8 @@ export const useOpenTickets = (userId: string) => {
 };
 ```
 
+The same code with decomment:
+
 ```ts
 export const useOpenTickets = (userId: string) => {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -46,9 +54,9 @@ export const useOpenTickets = (userId: string) => {
 };
 ```
 
-Six of the seven restated the code. The one that survived was made more specific: "rate-limits us" became the actual number.
+Six of the seven comments restated the code. The one that survived carries something the code can't, and it got more specific on the way: "rate-limits us" became the actual number.
 
-## What's inside
+## How it works
 
 - **The skill** (`skills/decomment`) runs the three questions, the delete-on-sight patterns, and a report that sorts every comment into deleted, replaced by code, moved, or kept. `references/taxonomy.md` covers the close calls: section headers in long files, comments in tests, config files, shared types, and i18n copy.
 - **The hook** (`hooks/comment-guard.py`) runs after every Write, Edit, and Bash call. When new comment lines land in a code file, it puts the three questions in front of the agent right away. It also catches files written with heredocs, `tee`, and `sed -i`, which a hook on the file tools alone would miss. It never flags lint and type directives, license headers, shebangs, or markers other tools require, such as `ponytail:`.
