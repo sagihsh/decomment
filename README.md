@@ -4,7 +4,7 @@
 
 Telling your agent to stop over-commenting doesn't work. It agrees, apologizes, and writes `// Return the result`.
 
-A rule in CLAUDE.md gets read once and then loses to habit. decomment is a Claude Code skill and hook that asks the question at the moment a comment is written, every time. Step-by-step narration, section banners, docblocks that echo the types and notes defending choices nobody asked about don't make it through. When a better name or an extracted function can say the same thing, the agent makes that change instead. What you get back is clean code that explains itself, plus the few comments that actually tell you something.
+A rule in CLAUDE.md gets read once and then loses to habit. decomment is a Claude Code skill and hook that steps in every time a comment is about to be written and asks whether it should exist at all. Step-by-step narration, section banners, docblocks that echo the types and notes defending choices nobody asked about don't make it through. When a better name or an extracted function can say the same thing, the agent makes that change instead. What you get back is clean code that explains itself, plus the few comments that actually tell you something.
 
 A comment survives only if it passes three questions:
 
