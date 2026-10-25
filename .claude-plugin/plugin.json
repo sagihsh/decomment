@@ -1,6 +1,6 @@
 {
   "name": "decomment",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Gets your agent writing clean code by making it question every comment it writes: is it necessary, or just narration? Could a better variable name, function name or extracted function make it unnecessary?",
   "author": {
     "name": "Sagi H",
