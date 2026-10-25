@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "decomment",
-      "description": "Deletes the comments AI writes by default. Every surviving comment has to name a source outside the file.",
+      "description": "Gets your agent writing clean code by making it question every comment it writes: is it necessary, or just narration? Could a better variable name, function name or extracted function make it unnecessary?",
       "source": "./",
       "category": "productivity"
     }
