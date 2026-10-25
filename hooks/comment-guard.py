@@ -5,19 +5,41 @@ Covers Bash as well as Write/Edit, because auto mode writes files with heredocs 
 rather than the file tools, and a matcher on the file tools alone sees none of it.
 """
 import json
+import os
 import re
 import sys
 
-CODE_SUFFIXES = (
-    ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".go", ".rs", ".java",
-    ".kt", ".swift", ".c", ".h", ".cc", ".cpp", ".cs", ".php", ".rb", ".scala",
-    ".css", ".scss", ".sql", ".tf",
-)
+
+def comments(line_start: str, trailing: str) -> re.Pattern:
+    return re.compile(rf"^\s*(?:{line_start})|\S\s+(?:{trailing})(?:\s|$)")
+
+
+C_STYLE = comments(r"//|/\*|\*(?:\s|$)|\{/\*", "//")
+HASH = comments("#(?!!)", "#")
+DASH = comments("--", "--")
+MARKUP = comments(r"//|/\*|\*(?:\s|$)|\{/\*|<!--", "//|<!--")
+LISP = comments(";", ";")
+
+COMMENT_SYNTAX = {
+    **dict.fromkeys((
+        ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".go", ".rs", ".java", ".kt",
+        ".swift", ".c", ".h", ".cc", ".cpp", ".cs", ".php", ".scala", ".dart",
+        ".css", ".scss",
+    ), C_STYLE),
+    ".py": comments(r"#(?!!)|[rRuU]?(?:\"\"\"|''')", "#"),
+    **dict.fromkeys((
+        ".rb", ".sh", ".bash", ".zsh", ".ex", ".exs", ".r", ".pl", ".yaml", ".yml", ".toml",
+    ), HASH),
+    ".tf": comments(r"#|//|/\*", "#|//"),
+    **dict.fromkeys((".sql", ".lua", ".hs"), DASH),
+    **dict.fromkeys((".html", ".vue", ".svelte", ".astro"), MARKUP),
+    **dict.fromkeys((".clj", ".cljs", ".el", ".lisp"), LISP),
+}
+CODE_SUFFIXES = tuple(COMMENT_SYNTAX)
 SKIP_PATH = re.compile(
     r"(node_modules|/dist/|/build/|\.min\.|__generated__|\.generated\.|"
     r"/migrations/|/vendor/|\.d\.ts$|/\.git/)"
 )
-COMMENT_LINE = re.compile(r"^\s*(//|/\*|\*(?!/)|#(?!!)|--\s|\{/\*)")
 # Comments that are code, convention, or law. Never up for review, so never nag.
 EXEMPT = re.compile(
     r"eslint-|biome-ignore|@ts-(expect-error|ignore|nocheck)|prettier-ignore|"
@@ -42,8 +64,8 @@ GATE = (
 # `> f.ts`, `>> f.ts`, `tee f.ts`, `sed -i ... f.ts`: a shell write aimed at a code file.
 BASH_TARGET = re.compile(
     r"(?:>>?|\btee\b(?:\s+-\w+)*|\bsed\b[^|;]*?-i[^|;]*?)\s+[\"\']?([\w./~-]+(?:"
-    + "|".join(s.replace(".", r"\.") for s in CODE_SUFFIXES)
-    + r"))"
+    + "|".join(re.escape(s) for s in sorted(CODE_SUFFIXES, key=len, reverse=True))
+    + r"))(?![\w.])"
 )
 
 
@@ -79,7 +101,8 @@ def main() -> None:
     path = args.get("file_path") or args.get("notebook_path") or ""
     if tool == "Bash":
         path = bash_target(args.get("command", ""))
-    if not path.endswith(CODE_SUFFIXES) or SKIP_PATH.search(path):
+    syntax = COMMENT_SYNTAX.get(os.path.splitext(path)[1].lower())
+    if not syntax or SKIP_PATH.search(path):
         return
 
     added, prior = new_text(tool, args)
@@ -88,7 +111,7 @@ def main() -> None:
     was_there = {line.strip() for line in prior.splitlines()}
     hits = [
         line for line in added.splitlines()
-        if COMMENT_LINE.match(line) and not EXEMPT.search(line) and line.strip() not in was_there
+        if syntax.search(line) and not EXEMPT.search(line) and line.strip() not in was_there
     ]
     if not hits:
         return
